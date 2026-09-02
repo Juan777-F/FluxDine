@@ -1,0 +1,121 @@
+/* ══════════════════════════════════════════════════════════
+   pikda.css  —  Estilos globales del sistema La Pikda
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Variables de marca ───────────────────────────────────── */
+:root {
+    --pikda-orange:  #E8450A;
+    --pikda-brown:   #6B3A2A;
+    --pikda-gold:    #D4A017;
+    --pikda-cream:   #FDF6EE;
+    --pikda-dark:    #1A1A1A;
+    --pikda-gray:    #6B7280;
+    --pikda-border:  #E8DDD4;
+    --pikda-success: #16A34A;
+    --pikda-danger:  #DC2626;
+    --pikda-warning: #D97706;
+}
+
+/* ── Reset y base ─────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--pikda-cream);
+    color: var(--pikda-dark);
+    margin: 0;
+}
+
+/* ── Tipografía display ───────────────────────────────────── */
+.font-display {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+}
+
+/* ── Botones ──────────────────────────────────────────────── */
+.btn-pikda {
+    background-color: var(--pikda-orange);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-pikda:hover {
+    background-color: #c73a08;
+    color: #fff;
+    transform: translateY(-1px);
+}
+.btn-pikda:active { transform: translateY(0); }
+
+.btn-pikda-outline {
+    background: transparent;
+    color: var(--pikda-orange);
+    border: 2px solid var(--pikda-orange);
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: all 0.2s;
+}
+.btn-pikda-outline:hover {
+    background: var(--pikda-orange);
+    color: #fff;
+}
+
+.btn-brown {
+    background-color: var(--pikda-brown);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 12px 24px;
+    width: 100%;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+.btn-brown:hover { background-color: #4a2518; color: #fff; }
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card-pikda {
+    background: #fff;
+    border: 1px solid var(--pikda-border);
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+.input-pikda {
+    border: 1.5px solid var(--pikda-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    background: #fff;
+    width: 100%;
+}
+.input-pikda:focus {
+    outline: none;
+    border-color: var(--pikda-orange);
+    box-shadow: 0 0 0 3px rgba(232, 69, 10, 0.12);
+}
+
+/* ── Alertas flash ────────────────────────────────────────── */
+.flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+}
+
+/* ── Helpers de color ─────────────────────────────────────── */
+.text-pikda-orange { color: var(--pikda-orange); }
+.text-pikda-brown  { color: var(--pikda-brown);  }
+.text-pikda-gold   { color: var(--pikda-gold);   }
+.text-pikda-gray   { color: var(--pikda-gray);   }
+
+/* ── Scrollbar suave ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--pikda-cream); }
+::-webkit-scrollbar-thumb { background: var(--pikda-border); border-radius: 3px; }

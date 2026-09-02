@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Bienvenido{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="selector-bg">
+
+    <!-- Navbar -->
+    <nav class="selector-nav">
+        <div class="d-flex align-items-center gap-3">
+            <div class="logo-badge">
+                <i class="bi bi-fire"></i>
+            </div>
+            <div class="logo-text">
+                <h6>LA PIKDA</h6>
+                <small>SISTEMA INTERNO</small>
+            </div>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            Sistema en línea · Local
+        </div>
+    </nav>
+
+    <!-- Cuerpo -->
+    <div class="selector-body">
+        <div class="welcome-pill">
+            <i class="bi bi-dot fs-5"></i>
+            Bienvenido al sistema de gestión
+        </div>
+
+        <h1 class="selector-title">
+            Hola, <span class="text-pikda-orange">¿quién va a usar</span> el<br>sistema hoy?
+        </h1>
+
+        <p class="selector-subtitle">
+            Selecciona el panel con el que vas a trabajar. Cada uno tiene las
+            herramientas necesarias para mantener el restaurante funcionando perfectamente.
+        </p>
+
+        <!-- Cards de roles -->
+        <div class="roles-grid">
+
+            <!-- Administrador -->
+            <a href="{{ url_for('auth.login_admin') }}" class="role-card">
+                <div class="role-icon admin">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>Administrador</h3>
+                <p class="desc">Control total: inventario, productos, ventas, empleados y reportes.</p>
+                <ul class="role-features">
+                    <li>Dashboard con métricas</li>
+                    <li>Gestión completa CRUD</li>
+                    <li>Control de empleados</li>
+                </ul>
+                <div class="role-footer">
+                    <span class="label">Acceso administrativo</span>
+                    <span class="cta orange">Entrar <i class="bi bi-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Empleado -->
+            <a href="{{ url_for('auth.login_empleado') }}" class="role-card">
+                <div class="role-icon empleado">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <h3>Empleado</h3>
+                <p class="desc">Consulta inventario, ve precios y registra las ventas del día.</p>
+                <ul class="role-features">
+                    <li>Consulta de inventario</li>
+                    <li>Lista de productos y precios</li>
+                    <li>Registro rápido de ventas</li>
+                </ul>
+                <div class="role-footer">
+                    <span class="label">Acceso operativo</span>
+                    <span class="cta dark">Entrar <i class="bi bi-arrow-right"></i></span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="selector-footer">
+        Este sistema funciona localmente dentro del establecimiento.
+        Si tienes problemas, contacta al administrador del sistema.
+    </div>
+
+</div>
+{% endblock %}

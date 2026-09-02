@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Acceso Administrador{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+
+    <!-- ── Panel formulario (izquierda) ── -->
+    <div class="login-form-panel">
+
+        <a href="{{ url_for('auth.selector') }}" class="back-link">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
+
+        <!-- Logo -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div style="background:var(--pikda-orange);color:#fff;width:40px;height:40px;
+                        border-radius:10px;display:flex;align-items:center;justify-content:center;
+                        font-size:1.2rem;">
+                <i class="bi bi-fire"></i>
+            </div>
+            <div>
+                <div style="font-weight:700;font-size:0.95rem;">LA PIKDA</div>
+                <div style="font-size:0.7rem;color:var(--pikda-gray);letter-spacing:1px;">PANEL ADMINISTRADOR</div>
+            </div>
+        </div>
+
+        <h2 class="font-display mb-1" style="font-size:1.8rem;">Acceso Administrador</h2>
+        <p class="text-pikda-gray mb-4" style="font-size:0.9rem;">
+            Ingresa tus credenciales para continuar.
+        </p>
+
+        <!-- Formulario -->
+        <form method="POST" action="{{ url_for('auth.login_admin') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Usuario -->
+            <div class="mb-3">
+                <label class="form-label-pikda" for="username">Usuario</label>
+                <div class="input-group-pikda">
+                    <i class="bi bi-person input-icon"></i>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="input-pikda with-icon"
+                        placeholder="tu_usuario"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-4">
+                <label class="form-label-pikda" for="password">Contraseña</label>
+                <div class="input-group-pikda">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="input-pikda with-icon"
+                        placeholder="••••••••"
+                        autocomplete="current-password"
+                        required
+                        style="padding-right: 44px;"
+                    >
+                    <button type="button" class="toggle-pass" onclick="togglePassword()">
+                        <i class="bi bi-eye" id="eye-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-pikda w-100" style="font-size:1rem;padding:12px;">
+                <i class="bi bi-shield-lock me-2"></i> Ingresar como Administrador
+            </button>
+        </form>
+
+        <div class="mt-4 text-center" style="font-size:0.8rem;color:var(--pikda-gray);">
+            ¿Eres empleado?
+            <a href="{{ url_for('auth.login_empleado') }}" style="color:var(--pikda-orange);font-weight:600;text-decoration:none;">
+                Accede aquí
+            </a>
+        </div>
+
+    </div>
+
+    <!-- ── Panel decorativo (derecha) ── -->
+    <div class="login-deco-panel admin-deco">
+        <div class="deco-content">
+            <div class="deco-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif;font-weight:900;font-size:1.8rem;margin-bottom:12px;">
+                Panel de Control
+            </h3>
+            <p style="opacity:0.85;font-size:0.95rem;line-height:1.6;max-width:320px;">
+                Gestiona inventario, productos, ventas, empleados y reportes desde un solo lugar.
+            </p>
+            <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;text-align:left;">
+                <div style="display:flex;align-items:center;gap:10px;opacity:0.9;">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span style="font-size:0.88rem;">Dashboard con métricas en tiempo real</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;opacity:0.9;">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span style="font-size:0.88rem;">Gestión completa de productos e inventario</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;opacity:0.9;">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span style="font-size:0.88rem;">Reportes de ventas exportables</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

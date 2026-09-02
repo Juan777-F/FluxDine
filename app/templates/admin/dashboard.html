@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+    <!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="bi bi-fire"></i></div>
+            <div class="sidebar-brand-text">
+                <div class="brand-name">LA PIKDA</div>
+                <div class="brand-role">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-item active">
+                <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.inventario') }}" class="nav-item">
+                <i class="bi bi-box-seam"></i> Inventario
+            </a>
+            <a href="{{ url_for('admin.productos') }}" class="nav-item">
+                <i class="bi bi-basket"></i> Productos
+            </a>
+            <a href="{{ url_for('admin.ventas') }}" class="nav-item">
+                <i class="bi bi-receipt"></i> Ventas
+            </a>
+            <a href="{{ url_for('admin.empleados') }}" class="nav-item">
+                <i class="bi bi-people"></i> Empleados
+            </a>
+            <a href="{{ url_for('admin.facturas_pendientes') }}" class="nav-item">
+                <i class="bi bi-printer"></i> Facturas pendientes
+                <span class="notif-badge" style="position:static;margin-left:auto;">3</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="color:var(--pikda-danger);">
+                <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════ -->
+    <div class="main-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Buscar productos, ventas...">
+            </div>
+            <div class="topbar-actions">
+                <a href="{{ url_for('admin.nueva_venta') }}" class="btn-registrar-venta">
+                    <i class="bi bi-plus-lg"></i> Registrar venta
+                </a>
+                <a href="{{ url_for('admin.facturas_pendientes') }}" class="notif-btn" title="Facturas pendientes">
+                    <i class="bi bi-bell"></i>
+                    <span class="notif-badge">3</span>
+                </a>
+                <div class="user-avatar">
+                    <div class="avatar-circle">
+                        {{ current_user.nombre_completo[:2].upper() if current_user.nombre_completo else 'AD' }}
+                    </div>
+                    <div class="avatar-info">
+                        <div class="user-name">{{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Admin' }}</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Área de página -->
+        <div class="page-area">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-eyebrow">Panel Administrador</div>
+                    <h1 class="page-title">
+                        Hola {{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Admin' }},
+                        esto está pasando hoy
+                    </h1>
+                    <p class="page-subtitle" id="fecha-hoy"></p>
+                </div>
+                <div class="page-header-actions">
+                    <a href="#" class="btn-export">
+                        <i class="bi bi-download"></i> Exportar reporte
+                    </a>
+                    <a href="{{ url_for('admin.nueva_venta') }}" class="btn-registrar-venta">
+                        <i class="bi bi-plus-lg"></i> Nueva venta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Métricas -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Ventas de hoy</div>
+                        <div class="metric-value">$ 270.000</div>
+                        <div class="metric-trend">
+                            <i class="bi bi-arrow-up trend-up"></i>
+                            <span class="trend-up">+12.4%</span> vs. semana anterior
+                        </div>
+                    </div>
+                    <div class="metric-icon orange"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Productos en stock</div>
+                        <div class="metric-value">718</div>
+                        <div class="metric-trend">
+                            <i class="bi bi-arrow-up trend-up"></i>
+                            <span class="trend-up">+48 unid.</span> vs. semana anterior
+                        </div>
+                    </div>
+                    <div class="metric-icon brown"><i class="bi bi-box-seam"></i></div>
+                </div>
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Bajo stock</div>
+                        <div class="metric-value">2</div>
+                        <div class="metric-trend">
+                            <i class="bi bi-exclamation-triangle trend-warn"></i>
+                            <span class="trend-warn">Requiere reposición</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon gold"><i class="bi bi-exclamation-triangle"></i></div>
+                </div>
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Empleados activos</div>
+                        <div class="metric-value">4</div>
+                        <div class="metric-trend">
+                            <i class="bi bi-check-circle trend-up"></i>
+                            <span>Equipo completo</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon brown"><i class="bi bi-people"></i></div>
+                </div>
+            </div>
+
+            <!-- Gráfico + Acciones rápidas -->
+            <div class="bottom-grid">
+
+                <!-- Gráfico semanal -->
+                <div class="panel-card">
+                    <div class="panel-card-header">
+                        <div>
+                            <div class="panel-card-title">Ventas de la semana</div>
+                            <div class="panel-card-subtitle">Total semanal y comportamiento por día</div>
+                        </div>
+                        <div class="chart-legend">
+                            <span><span class="legend-dot orange"></span><span class="legend-label">Ventas</span></span>
+                            <span><span class="legend-dot gray"></span><span class="legend-label">Meta</span></span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div class="chart-bars-container" id="chart-bars"></div>
+                        <div class="chart-labels" id="chart-labels" style="display:flex;gap:10px;margin-top:8px;"></div>
+                    </div>
+                </div>
+
+                <!-- Acciones rápidas -->
+                <div class="panel-card">
+                    <div class="panel-card-header">
+                        <div>
+                            <div class="panel-card-title">Acciones rápidas</div>
+                            <div class="panel-card-subtitle">Atajos a las tareas más usadas</div>
+                        </div>
+                    </div>
+                    <div class="acciones-grid">
+                        <a href="{{ url_for('admin.nueva_venta') }}" class="accion-btn orange">
+                            <i class="bi bi-receipt"></i> Registrar venta
+                        </a>
+                        <a href="{{ url_for('admin.inventario') }}" class="accion-btn brown">
+                            <i class="bi bi-box-seam"></i> Nueva entrada
+                        </a>
+                        <a href="{{ url_for('admin.nuevo_producto') }}" class="accion-btn gold">
+                            <i class="bi bi-basket"></i> Crear producto
+                        </a>
+                        <a href="{{ url_for('admin.nuevo_empleado') }}" class="accion-btn dark">
+                            <i class="bi bi-person-plus"></i> Agregar empleado
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Ventas recientes + Bajo stock -->
+            <div class="ventas-grid">
+
+                <!-- Ventas recientes -->
+                <div class="panel-card">
+                    <div class="panel-card-header">
+                        <div>
+                            <div class="panel-card-title">Ventas recientes</div>
+                            <div class="panel-card-subtitle">Últimas transacciones del día</div>
+                        </div>
+                        <a href="{{ url_for('admin.ventas') }}" class="link-ver-todo">Ver historial</a>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Venta</th>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th style="text-align:right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="venta-code">V-001245</div>
+                                    <div class="venta-products">2 productos</div>
+                                </td>
+                                <td>2026-06-04 13:42</td>
+                                <td><span class="badge-metodo badge-efectivo">Efectivo</span></td>
+                                <td class="venta-total">$ 83.000</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="venta-code">V-001243</div>
+                                    <div class="venta-products">3 productos</div>
+                                </td>
+                                <td>2026-06-04 12:55</td>
+                                <td><span class="badge-metodo badge-transferencia">Transferencia</span></td>
+                                <td class="venta-total">$ 48.000</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="venta-code">V-001240</div>
+                                    <div class="venta-products">2 productos</div>
+                                </td>
+                                <td>2026-06-03 21:10</td>
+                                <td><span class="badge-metodo badge-tarjeta">Tarjeta</span></td>
+                                <td class="venta-total">$ 92.000</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="venta-code">V-001238</div>
+                                    <div class="venta-products">1 producto</div>
+                                </td>
+                                <td>2026-06-03 20:30</td>
+                                <td><span class="badge-metodo badge-efectivo">Efectivo</span></td>
+                                <td class="venta-total">$ 47.000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Productos bajo stock -->
+                <div class="panel-card">
+                    <div class="panel-card-header">
+                        <div>
+                            <div class="panel-card-title">Productos con bajo stock</div>
+                            <div class="panel-card-subtitle">Requieren reposición pronto</div>
+                        </div>
+                        <a href="{{ url_for('admin.inventario') }}" class="link-ver-todo" style="color:var(--pikda-danger);">
+                            <i class="bi bi-exclamation-circle me-1"></i>Atención
+                        </a>
+                    </div>
+                    <div>
+                        <div class="stock-item">
+                            <div>
+                                <div class="stock-name">Costilla de cerdo</div>
+                                <div class="stock-cat">Picadas</div>
+                            </div>
+                            <span class="stock-badge"><i class="bi bi-exclamation-triangle-fill"></i> 3 und.</span>
+                        </div>
+                        <div class="stock-item">
+                            <div>
+                                <div class="stock-name">Aguardiente Antioqueño</div>
+                                <div class="stock-cat">Bebidas</div>
+                            </div>
+                            <span class="stock-badge"><i class="bi bi-exclamation-triangle-fill"></i> 2 und.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- /page-area -->
+    </div><!-- /main-content -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+    // Fecha en el header
+    const fecha = new Date();
+    document.getElementById('fecha-hoy').textContent =
+        fecha.toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+        + ' · Restaurante LA PIKDA';
+</script>
+{% endblock %}

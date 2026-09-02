@@ -1,0 +1,289 @@
+/* ══════════════════════════════════════════════════════════
+   auth.css  —  Estilos del módulo de autenticación
+   Cubre: selector.html, login_admin.html, login_empleado.html
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Layout base compartido (login_admin y login_empleado) ── */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    background: var(--pikda-cream);
+}
+
+.login-form-panel {
+    width: 100%;
+    max-width: 480px;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #fff;
+    box-shadow: 2px 0 20px rgba(0,0,0,0.06);
+}
+
+.login-deco-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Variante administrador */
+.login-deco-panel.admin-deco {
+    background: linear-gradient(135deg, var(--pikda-orange) 0%, #c73a08 60%, var(--pikda-brown) 100%);
+}
+
+/* Variante empleado */
+.login-deco-panel.empleado-deco {
+    background: linear-gradient(135deg, var(--pikda-brown) 0%, #4a2518 60%, #2d1810 100%);
+}
+
+.login-deco-panel::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    top: -80px; right: -80px;
+}
+.login-deco-panel::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    bottom: -60px; left: -60px;
+}
+
+.deco-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+}
+
+.deco-icon {
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem;
+    margin: 0 auto 24px;
+}
+
+/* ── Elementos de formulario ──────────────────────────────── */
+.back-link {
+    color: var(--pikda-gray);
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 40px;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--pikda-orange); }
+.back-link.brown:hover { color: var(--pikda-brown); }
+
+.form-label-pikda {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pikda-dark);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.input-group-pikda { position: relative; margin-bottom: 20px; }
+
+.input-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--pikda-gray);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.input-pikda.with-icon { padding-left: 40px; }
+
+.toggle-pass {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--pikda-gray); cursor: pointer;
+    font-size: 1rem; padding: 0;
+}
+.toggle-pass:hover { color: var(--pikda-orange); }
+
+/* ── Selector de roles ────────────────────────────────────── */
+.selector-bg {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(253,246,238,0.88), rgba(253,246,238,0.88)),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80') center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+}
+
+.selector-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+}
+
+.logo-badge {
+    background: var(--pikda-orange);
+    color: #fff;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 700;
+}
+
+.logo-text h6 { margin: 0; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.5px; }
+.logo-text small { color: var(--pikda-gray); font-size: 0.7rem; letter-spacing: 1px; }
+
+.status-badge {
+    background: rgba(22,163,74,0.12);
+    color: var(--pikda-success);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+}
+
+.status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--pikda-success);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+.selector-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+}
+
+.welcome-pill {
+    background: rgba(232,69,10,0.1);
+    color: var(--pikda-orange);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+
+.selector-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.2;
+    color: var(--pikda-dark);
+    margin-bottom: 16px;
+}
+
+.selector-subtitle {
+    color: var(--pikda-gray);
+    font-size: 1rem;
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+}
+
+/* ── Cards de rol ─────────────────────────────────────────── */
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    width: 100%;
+    max-width: 740px;
+}
+
+.role-card {
+    background: #fff;
+    border: 1px solid var(--pikda-border);
+    border-radius: 18px;
+    padding: 32px 28px;
+    text-align: left;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+    color: inherit;
+}
+
+.role-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+.role-icon.admin    { background: var(--pikda-orange); color: #fff; }
+.role-icon.empleado { background: var(--pikda-brown);  color: #fff; }
+
+.role-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+.role-card .desc { color: var(--pikda-gray); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.5; }
+
+.role-features { list-style: none; padding: 0; margin: 0 0 24px 0; }
+.role-features li {
+    font-size: 0.85rem;
+    color: var(--pikda-dark);
+    padding: 3px 0;
+    display: flex; align-items: center; gap: 8px;
+}
+.role-features li::before {
+    content: '';
+    width: 14px; height: 14px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.5 3.5L6 11 2.5 7.5' stroke='%231D9E75' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+    flex-shrink: 0;
+}
+
+.role-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--pikda-border);
+    margin-top: 4px;
+}
+.role-footer .label { font-size: 0.78rem; color: var(--pikda-gray); }
+.role-footer .cta   { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.cta.orange { color: var(--pikda-orange); }
+.cta.dark   { color: var(--pikda-dark);   }
+
+.selector-footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.78rem;
+    color: var(--pikda-gray);
+    border-top: 1px solid var(--pikda-border);
+}
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .login-deco-panel { display: none; }
+    .login-form-panel { max-width: 100%; }
+}
