@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   pikda.js  —  Scripts globales del sistema La Pikda
+   pikda.js  —  Scripts globales del sistema FluxDine
    ══════════════════════════════════════════════════════════ */
 
 /* ── Auto-cerrar alertas flash tras 4 segundos ────────────── */

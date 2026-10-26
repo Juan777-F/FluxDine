@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Imprimir Factura {{ factura.numero }}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background: #fff;
+            color: #000;
+            margin: 0;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        .ticket-container {
+            max-width: 400px;
+            margin: 0 auto;
+            border: 1px dashed #ccc;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 15px;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .meta-info {
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .items-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        .items-table th {
+            text-align: left;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+
+        .items-table td {
+            padding: 8px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .col-cant {
+            width: 40px;
+            text-align: center;
+        }
+
+        .col-precio {
+            text-align: right;
+        }
+
+        .col-sub {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .totales {
+            margin-top: 20px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            text-align: right;
+        }
+
+        .totales-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .ticket-container {
+                border: none;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Esconder elementos que no se deben imprimir */
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print" style="text-align:center; margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor:pointer;">Imprimir
+            ahora</button>
+        <button onclick="window.close()" style="padding: 10px 20px; font-size: 16px; cursor:pointer;">Cerrar
+            ventana</button>
+    </div>
+
+    <div class="ticket-container">
+        <div class="header">
+            <div class="brand">FluxDine</div>
+            <div class="meta-info">Sistema de Facturación</div>
+            <div class="meta-info">Factura: {{ factura.numero }}</div>
+            <div class="meta-info">Fecha: {{ factura.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+            <div class="meta-info">Método: {{ factura.metodo_pago|capitalize }}</div>
+            <div class="meta-info">Estado: {{ factura.estado|capitalize }}</div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Cant</th>
+                    <th>Prod</th>
+                    <th class="col-sub">Subt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for det in factura.detalles %}
+                <tr>
+                    <td class="col-cant">{{ det.cantidad }}</td>
+                    <td>{{ det.producto.nombre if det.producto else 'N/A' }}<br><small>${{
+                            "{:,.0f}".format(det.precio_unitario).replace(',', '.') }}</small></td>
+                    <td class="col-sub">${{ "{:,.0f}".format(det.subtotal).replace(',', '.') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totales">
+            {% if factura.notas %}
+            <div style="text-align:left; font-size: 12px; margin-bottom: 10px;">
+                <strong>Notas:</strong> {{ factura.notas }}
+            </div>
+            {% endif %}
+            <div class="totales-row">
+                <span>TOTAL A PAGAR</span>
+                <span>${{ "{:,.0f}".format(factura.total).replace(',', '.') }}</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            ¡Gracias por preferir FluxDine!<br>
+            Conserve este comprobante
+        </div>
+    </div>
+
+    <script>
+        // Imprimir automáticamente al abrir
+        window.onload = function () {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>

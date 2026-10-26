@@ -13,7 +13,7 @@
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon"><i class="bi bi-fire"></i></div>
             <div class="sidebar-brand-text">
-                <div class="brand-name">LA PIKDA</div>
+                <div class="brand-name">FluxDine</div>
                 <div class="brand-role">Admin Panel</div>
             </div>
         </div>
@@ -34,9 +34,8 @@
             <a href="{{ url_for('admin.empleados') }}" class="nav-item">
                 <i class="bi bi-people"></i> Empleados
             </a>
-            <a href="{{ url_for('admin.facturas_pendientes') }}" class="nav-item">
-                <i class="bi bi-printer"></i> Facturas pendientes
-                <span class="notif-badge" style="position:static;margin-left:auto;">3</span>
+            <a href="{{ url_for('admin.facturas') }}" class="nav-item">
+                <i class="bi bi-printer"></i> Facturación
             </a>
         </nav>
 
@@ -60,16 +59,16 @@
                 <a href="{{ url_for('admin.nueva_venta') }}" class="btn-registrar-venta">
                     <i class="bi bi-plus-lg"></i> Registrar venta
                 </a>
-                <a href="{{ url_for('admin.facturas_pendientes') }}" class="notif-btn" title="Facturas pendientes">
-                    <i class="bi bi-bell"></i>
-                    <span class="notif-badge">3</span>
+                <a href="{{ url_for('admin.facturas') }}" class="notif-btn" title="Ir a Facturación">
+                    <i class="bi bi-receipt"></i>
                 </a>
                 <div class="user-avatar">
                     <div class="avatar-circle">
                         {{ current_user.nombre_completo[:2].upper() if current_user.nombre_completo else 'AD' }}
                     </div>
                     <div class="avatar-info">
-                        <div class="user-name">{{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Admin' }}</div>
+                        <div class="user-name">{{ current_user.nombre_completo.split()[0] if
+                            current_user.nombre_completo else 'Admin' }}</div>
                         <div class="user-role">Administrador</div>
                     </div>
                 </div>
@@ -263,7 +262,8 @@
                             <div class="panel-card-title">Productos con bajo stock</div>
                             <div class="panel-card-subtitle">Requieren reposición pronto</div>
                         </div>
-                        <a href="{{ url_for('admin.inventario') }}" class="link-ver-todo" style="color:var(--pikda-danger);">
+                        <a href="{{ url_for('admin.inventario') }}" class="link-ver-todo"
+                            style="color:var(--pikda-danger);">
                             <i class="bi bi-exclamation-circle me-1"></i>Atención
                         </a>
                     </div>
@@ -297,7 +297,7 @@
     // Fecha en el header
     const fecha = new Date();
     document.getElementById('fecha-hoy').textContent =
-        fecha.toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
-        + ' · Restaurante LA PIKDA';
+        fecha.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        + ' · Restaurante FluxDine';
 </script>
 {% endblock %}

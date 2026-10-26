@@ -1,25 +1,25 @@
 /* ══════════════════════════════════════════════════════════
-   admin.js  —  Panel Administrador · La Pikda
+   admin.js  —  Panel Administrador · FluxDine
    ══════════════════════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // ── Gráfico de barras semanal (estático por ahora) ─────
     const datos = {
-        dias:   ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+        dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
         ventas: [180000, 240000, 210000, 270000, 310000, 390000, 150000],
-        meta:   [250000, 250000, 250000, 250000, 250000, 250000, 250000],
+        meta: [250000, 250000, 250000, 250000, 250000, 250000, 250000],
     };
 
     const container = document.getElementById('chart-bars');
-    const labels    = document.getElementById('chart-labels');
+    const labels = document.getElementById('chart-labels');
 
     if (container && labels) {
         const maxVal = Math.max(...datos.ventas, ...datos.meta);
 
         datos.dias.forEach((dia, i) => {
             const altVenta = (datos.ventas[i] / maxVal * 100).toFixed(1);
-            const altMeta  = (datos.meta[i]   / maxVal * 100).toFixed(1);
+            const altMeta = (datos.meta[i] / maxVal * 100).toFixed(1);
 
             // Barras
             const group = document.createElement('div');

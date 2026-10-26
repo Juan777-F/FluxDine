@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Factura {{ factura.numero }} · FluxDine{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .factura-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .info-box {
+        background: var(--pikda-cream);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .info-row strong {
+        width: 150px;
+        color: var(--pikda-gray);
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-pagada {
+        background: rgba(22, 163, 74, 0.10);
+        color: #15803d;
+    }
+
+    .status-pendiente {
+        background: rgba(217, 119, 6, 0.10);
+        color: #b45309;
+    }
+
+    .status-anulada {
+        background: rgba(220, 38, 38, 0.10);
+        color: #b91c1c;
+    }
+
+    .table th,
+    .table td {
+        padding: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    {% include 'admin/sidebar.html' ignore missing %}
+
+    <div class="main-content">
+        <header class="topbar">
+            <div>
+                <a href="{{ url_for('admin.facturas') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a facturas
+                </a>
+            </div>
+            <div class="topbar-actions">
+                <a href="{{ url_for('admin.imprimir_factura', id=factura.id) }}" target="_blank" class="btn-export">
+                    <i class="bi bi-printer"></i> Imprimir Factura
+                </a>
+            </div>
+        </header>
+
+        <div class="page-area">
+            <div class="panel-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="factura-header">
+                    <div>
+                        <h2 class="font-display">Factura {{ factura.numero }}</h2>
+                        <span class="status-badge status-{{ factura.estado }}">{{ factura.estado|capitalize }}</span>
+                    </div>
+                    <div class="text-end">
+                        <div style="font-size:1.5rem; font-weight:900; color:var(--pikda-orange);">
+                            ${{ "{:,.0f}".format(factura.total).replace(',', '.') }}
+                        </div>
+                        <div class="text-muted" style="font-size:0.85rem;">Total Facturado</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-row">
+                        <strong>Fecha de Emisión:</strong>
+                        <span>{{ factura.fecha.strftime('%d de %B, %Y a las %H:%M') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <strong>Método de Pago:</strong>
+                        <span style="text-transform: capitalize;">{{ factura.metodo_pago }}</span>
+                    </div>
+                    {% if factura.notas %}
+                    <div class="info-row">
+                        <strong>Notas Adicionales:</strong>
+                        <span>{{ factura.notas }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <h4 class="mb-3">Detalle de Productos</h4>
+                <table class="table border">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-center">Precio Unit.</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for det in factura.detalles %}
+                        <tr>
+                            <td>{{ det.producto.nombre if det.producto else 'Producto Eliminado' }}</td>
+                            <td class="text-center">{{ det.cantidad }}</td>
+                            <td class="text-center">${{ "{:,.0f}".format(det.precio_unitario).replace(',', '.') }}</td>
+                            <td class="text-end fw-bold">${{ "{:,.0f}".format(det.subtotal).replace(',', '.') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end text-muted">Total:</td>
+                            <td class="text-end fw-bold text-dark fs-5">${{ "{:,.0f}".format(factura.total).replace(',',
+                                '.') }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="mt-4 text-end">
+                    <form method="POST" action="{{ url_for('admin.eliminar_factura', id=factura.id) }}"
+                        style="display:inline;"
+                        onsubmit="return confirm('¿Seguro de eliminar y devolver productos al inventario?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Eliminar Factura
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

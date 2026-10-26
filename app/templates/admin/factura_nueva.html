@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Factura · FluxDine{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .factura-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+    }
+
+    .items-table th {
+        padding: 10px;
+        border-bottom: 2px solid var(--pikda-border);
+        font-size: 0.8rem;
+        color: var(--pikda-gray);
+    }
+
+    .items-table td {
+        padding: 10px;
+        border-bottom: 1px solid var(--pikda-border);
+        vertical-align: middle;
+    }
+
+    .btn-quitar {
+        color: var(--pikda-danger);
+        cursor: pointer;
+        border: none;
+        background: none;
+    }
+
+    .totales-box {
+        background: var(--pikda-cream);
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .totales-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .search-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid var(--pikda-border);
+        border-radius: 8px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+
+    .search-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-item:hover {
+        background: var(--pikda-cream);
+    }
+
+    .qty-input {
+        width: 60px;
+        text-align: center;
+        border: 1px solid var(--pikda-border);
+        border-radius: 5px;
+        padding: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    {% include 'admin/sidebar.html' ignore missing %}
+
+    <div class="main-content">
+        <header class="topbar">
+            <div></div> <!-- Espacio para alinear acciones a la derecha si es necesario -->
+            <div class="topbar-actions">
+            </div>
+        </header>
+
+        <div class="page-area">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Crear Factura</h1>
+                    <p class="page-subtitle">{{ numero_sugerido }}</p>
+                </div>
+            </div>
+
+            <div class="factura-grid">
+                <!-- Panel Principal: Búsqueda e Items -->
+                <div class="panel-card">
+                    <div class="search-container">
+                        <label class="form-label">Buscar producto para agregar:</label>
+                        <input type="text" id="buscador-productos" class="form-input" placeholder="Ej: Hamburguesa...">
+                        <div class="search-results" id="resultados-busqueda"></div>
+                    </div>
+
+                    <table class="items-table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th style="text-align:center;">Precio</th>
+                                <th style="text-align:center;">Cant.</th>
+                                <th style="text-align:right;">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-items">
+                            <tr id="fila-vacia">
+                                <td colspan="5" class="text-center text-muted py-4">Agregue productos a la factura</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Panel Lateral: Totales y Guardar -->
+                <div class="panel-card">
+                    <h4 class="panel-card-title mb-3">Detalles de Facturación</h4>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Método de Pago</label>
+                        <select id="metodo_pago" class="form-input">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Estado</label>
+                        <select id="estado" class="form-input">
+                            <option value="pagada">Pagada</option>
+                            <option value="pendiente">Pendiente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Notas (Opcional)</label>
+                        <textarea id="notas" class="form-input" rows="3" placeholder="Comentarios..."></textarea>
+                    </div>
+
+                    <div class="totales-box">
+                        <div class="totales-row">
+                            <span>TOTAL:</span>
+                            <span id="lbl-total">$ 0</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-pikda w-100 mt-4" id="btn-guardar" style="font-size:1.1rem; padding: 14px;">
+                        <i class="bi bi-save"></i> Emitir Factura
+                    </button>
+                    <div id="loader" class="text-center mt-2" style="display:none;color:var(--pikda-orange);"><i
+                            class="bi bi-arrow-repeat spin"></i> Guardando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const csrfToken = "{{ csrf_token() }}";
+    let productosDisponibles = [];
+    let itemsFactura = [];
+
+    // Cargar productos
+    fetch("{{ url_for('admin.productos_json') }}")
+        .then(r => r.json())
+        .then(data => { productosDisponibles = data; })
+        .catch(e => console.error("Error cargando productos", e));
+
+    const buscador = document.getElementById('buscador-productos');
+    const resultados = document.getElementById('resultados-busqueda');
+    const tabla = document.getElementById('tabla-items');
+    const filaVacia = document.getElementById('fila-vacia');
+    const lblTotal = document.getElementById('lbl-total');
+    let totalFactura = 0;
+
+    // Buscador
+    buscador.addEventListener('input', function () {
+        const q = this.value.toLowerCase().trim();
+        resultados.innerHTML = '';
+        if (!q) { resultados.style.display = 'none'; return; }
+
+        const filtrados = productosDisponibles.filter(p => p.nombre.toLowerCase().includes(q));
+        if (filtrados.length === 0) { resultados.style.display = 'none'; return; }
+
+        filtrados.slice(0, 10).forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            div.innerHTML = `<div><strong>${p.nombre}</strong> <br><small class="text-muted">Stock: ${p.stock}</small></div> <div>$${p.precio}</div>`;
+            div.onclick = () => agregarItem(p);
+            resultados.appendChild(div);
+        });
+        resultados.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!buscador.contains(e.target) && !resultados.contains(e.target)) {
+            resultados.style.display = 'none';
+        }
+    });
+
+    // Validar formato moneda
+    const formatearMoneda = (num) => new Intl.NumberFormat('es-CO').format(num);
+
+    function actualizarTotales() {
+        totalFactura = itemsFactura.reduce((sum, item) => sum + item.subtotal, 0);
+        lblTotal.innerText = `$ ${formatearMoneda(totalFactura)}`;
+
+        if (itemsFactura.length > 0) {
+            if (filaVacia) filaVacia.style.display = 'none';
+        } else {
+            if (filaVacia) filaVacia.style.display = 'table-row';
+        }
+    }
+
+    function renderizarTabla() {
+        // Limpiamos todo menos el empty state si aplica
+        Array.from(tabla.children).forEach(tr => { if (tr.id !== 'fila-vacia') tr.remove(); });
+
+        itemsFactura.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.nombre}</td>
+                <td class="text-center">$ ${formatearMoneda(item.precio)}</td>
+                <td class="text-center">
+                    <input type="number" class="qty-input" value="${item.cantidad}" min="1" max="${item.stock_max}" onchange="cambiarCantidad(${index}, this.value)">
+                </td>
+                <td class="text-end fw-bold">$ ${formatearMoneda(item.subtotal)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn-quitar" onclick="eliminarItem(${index})"><i class="bi bi-x-circle-fill"></i></button>
+                </td>
+            `;
+            tabla.appendChild(tr);
+        });
+        actualizarTotales();
+    }
+
+    function agregarItem(prod) {
+        const existe = itemsFactura.find(i => i.producto_id === prod.id);
+        if (existe) {
+            if (existe.cantidad < prod.stock) {
+                existe.cantidad++;
+                existe.subtotal = existe.cantidad * existe.precio;
+            } else {
+                alert("No hay suficiente stock.");
+            }
+        } else {
+            itemsFactura.push({
+                producto_id: prod.id,
+                nombre: prod.nombre,
+                precio: prod.precio,
+                cantidad: 1,
+                subtotal: prod.precio,
+                stock_max: prod.stock
+            });
+        }
+        buscador.value = '';
+        resultados.style.display = 'none';
+        renderizarTabla();
+    }
+
+    function cambiarCantidad(index, newQty) {
+        const item = itemsFactura[index];
+        let val = parseInt(newQty) || 1;
+        if (val > item.stock_max) {
+            alert(`Solo hay ${item.stock_max} unidades en stock.`);
+            val = item.stock_max;
+        } else if (val < 1) {
+            val = 1;
+        }
+        item.cantidad = val;
+        item.subtotal = val * item.precio;
+        renderizarTabla();
+    }
+
+    function eliminarItem(index) {
+        itemsFactura.splice(index, 1);
+        renderizarTabla();
+    }
+
+    // Guardar Factura
+    document.getElementById('btn-guardar').addEventListener('click', function () {
+        if (itemsFactura.length === 0) {
+            return alert("Debe agregar al menos un producto a la factura.");
+        }
+
+        this.disabled = true;
+        document.getElementById('loader').style.display = 'block';
+
+        const payload = {
+            numero: "{{ numero_sugerido }}",
+            metodo_pago: document.getElementById('metodo_pago').value,
+            estado: document.getElementById('estado').value,
+            notas: document.getElementById('notas').value,
+            total: totalFactura,
+            detalles: itemsFactura.map(i => ({
+                producto_id: i.producto_id,
+                cantidad: i.cantidad,
+                precio_unitario: i.precio,
+                subtotal: i.subtotal
+            }))
+        };
+
+        fetch("{{ url_for('admin.crear_factura') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    window.location.href = "{{ url_for('admin.facturas') }}";
+                } else {
+                    alert("Error: " + data.mensaje);
+                    document.getElementById('btn-guardar').disabled = false;
+                    document.getElementById('loader').style.display = 'none';
+                }
+            })
+            .catch(err => {
+                alert("Error de red");
+                console.error(err);
+                document.getElementById('btn-guardar').disabled = false;
+                document.getElementById('loader').style.display = 'none';
+            });
+    });
+</script>
+{% endblock %}

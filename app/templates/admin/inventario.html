@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% block title %}Inventario · Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/a_invent.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="bi bi-fire"></i></div>
+            <div class="sidebar-brand-text">
+                <div class="brand-name">FluxDine</div>
+                <div class="brand-role">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+                <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.inventario') }}" class="nav-item active">
+                <i class="bi bi-box-seam"></i> Inventario
+            </a>
+            <a href="{{ url_for('admin.productos') }}" class="nav-item">
+                <i class="bi bi-basket"></i> Productos
+            </a>
+            <a href="{{ url_for('admin.ventas') }}" class="nav-item">
+                <i class="bi bi-receipt"></i> Ventas
+            </a>
+            <a href="{{ url_for('admin.empleados') }}" class="nav-item">
+                <i class="bi bi-people"></i> Empleados
+            </a>
+            <a href="{{ url_for('admin.facturas') }}" class="nav-item">
+                <i class="bi bi-printer"></i> Facturación
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="color:var(--pikda-danger);">
+                <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+            </a>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-search">
+                <form method="GET" action="{{ url_for('admin.inventario') }}" id="form-busqueda">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="q" placeholder="Buscar producto..." value="{{ busqueda }}"
+                        id="input-busqueda">
+                    <input type="hidden" name="categoria" value="{{ categoria_sel or '' }}">
+                    <input type="hidden" name="estado" value="{{ estado_sel }}">
+                </form>
+            </div>
+            <div class="topbar-actions">
+                <a href="{{ url_for('admin.nuevo_producto') }}" class="btn-registrar-venta">
+                    <i class="bi bi-plus-lg"></i> Nuevo producto
+                </a>
+                <div class="user-avatar">
+                    <div class="avatar-circle">
+                        {{ current_user.nombre_completo[:2].upper() if current_user.nombre_completo else 'AD' }}
+                    </div>
+                    <div class="avatar-info">
+                        <div class="user-name">{{ current_user.nombre_completo.split()[0] }}</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-area">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-eyebrow">Panel Administrador</div>
+                    <h1 class="page-title">Inventario</h1>
+                    <p class="page-subtitle">
+                        {{ productos|length }} producto{{ 's' if productos|length != 1 else '' }}
+                        {% if bajo_stock > 0 %}
+                        · <span style="color:var(--pikda-danger);">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            {{ bajo_stock }} con bajo stock
+                        </span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="page-header-actions">
+                    <a href="{{ url_for('admin.nuevo_producto') }}" class="btn-registrar-venta">
+                        <i class="bi bi-plus-lg"></i> Nuevo producto
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="inv-filtros panel-card" style="margin-bottom:20px;">
+                <form method="GET" action="{{ url_for('admin.inventario') }}" class="filtros-form">
+                    <input type="hidden" name="q" value="{{ busqueda }}">
+
+                    <div class="filtro-group">
+                        <label class="filtro-label">Categoría</label>
+                        <select name="categoria" class="filtro-select" onchange="this.form.submit()">
+                            <option value="">Todas</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}" {{ 'selected' if categoria_sel==cat.id }}>
+                                {{ cat.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filtro-group">
+                        <label class="filtro-label">Estado</label>
+                        <select name="estado" class="filtro-select" onchange="this.form.submit()">
+                            <option value="todos" {{ 'selected' if estado_sel=='todos' }}>Todos</option>
+                            <option value="disponible" {{ 'selected' if estado_sel=='disponible' }}>Disponible</option>
+                            <option value="agotado" {{ 'selected' if estado_sel=='agotado' }}>Agotado</option>
+                        </select>
+                    </div>
+
+                    {% if busqueda or categoria_sel or estado_sel != 'todos' %}
+                    <a href="{{ url_for('admin.inventario') }}" class="btn-limpiar">
+                        <i class="bi bi-x-circle"></i> Limpiar filtros
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Tabla -->
+            <div class="panel-card">
+                {% if productos %}
+                <table class="data-table inv-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th style="text-align:center;">Stock</th>
+                            <th style="text-align:center;">Stock mín.</th>
+                            <th style="text-align:right;">Precio</th>
+                            <th style="text-align:center;">Estado</th>
+                            <th style="text-align:center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in productos %}
+                        <tr id="fila-{{ p.id }}"
+                            class="{{ 'fila-bajo-stock' if p.bajo_stock and p.estado == 'activo' }}">
+                            <td class="td-id">{{ p.id }}</td>
+                            <td>
+                                <div class="prod-nombre">{{ p.nombre }}</div>
+                                {% if p.descripcion %}
+                                <div class="prod-desc">{{ p.descripcion[:60] }}{{ '…' if p.descripcion|length > 60 }}
+                                </div>
+                                {% endif %}
+                                {% if p.bajo_stock and p.estado == 'activo' %}
+                                <span class="badge-bajo-stock">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Bajo stock
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge-categoria">{{ p.categoria.nombre }}</span>
+                            </td>
+
+                            <td style="text-align:center;">
+                                <span
+                                    class="stock-num {{ 'stock-danger' if p.bajo_stock and p.estado == 'activo' else 'stock-ok' }}">
+                                    {{ p.stock_actual }}
+                                </span>
+                            </td>
+                            <td style="text-align:center;color:var(--pikda-gray);font-size:0.85rem;">
+                                {{ p.stock_minimo }}
+                            </td>
+                            <td style="text-align:right;">
+                                <span class="precio-val">
+                                    $ {{ '{:,.0f}'.format(p.precio_venta).replace(',', '.') }}
+                                </span>
+                            </td>
+                            <td style="text-align:center;">
+                                <span
+                                    class="badge-estado {{ 'badge-activo' if p.estado == 'disponible' else 'badge-inactivo' }}">
+                                    {{ p.estado.capitalize() }}
+                                </span>
+                            </td>
+                            <td style="text-align:center;">
+                                <div class="acciones-fila">
+                                    <button onclick="abrirModal({{ p.id }})" class="btn-accion btn-editar"
+                                        title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button onclick="eliminarProducto({{ p.id }}, '{{ p.nombre }}')"
+                                        class="btn-accion btn-eliminar" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="inv-empty">
+                    <i class="bi bi-box-seam"></i>
+                    <p>No hay productos
+                        {% if busqueda %}con "{{ busqueda }}"
+                        {% elif categoria_sel %}en esta categoría
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('admin.nuevo_producto') }}" class="btn-registrar-venta">
+                        <i class="bi bi-plus-lg"></i> Crear primer producto
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL EDITAR ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-editar" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="bi bi-pencil"></i> Editar producto</h3>
+            <button class="modal-close" onclick="cerrarModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form id="form-editar">
+            <input type="hidden" id="edit-id">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text" id="edit-nombre" name="nombre" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoría *</label>
+                    <select id="edit-categoria" name="categoria_id" class="form-input" required>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estado</label>
+                    <select id="edit-estado" name="estado" class="form-input">
+                        <option value="disponible">Disponible</option>
+                        <option value="agotado">Agotado</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Descripción</label>
+                    <textarea id="edit-descripcion" name="descripcion" class="form-input" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio (COP) *</label>
+                    <input type="number" id="edit-precio" name="precio_venta" class="form-input" min="0" step="100"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock actual</label>
+                    <input type="number" id="edit-stock-actual" name="stock_actual" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock mínimo</label>
+                    <input type="number" id="edit-stock-minimo" name="stock_minimo" class="form-input" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-export" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-registrar-venta">
+                    <i class="bi bi-check-lg"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script src="{{ url_for('static', filename='js/a_invent.js') }}"></script>
+<script>
+    // Búsqueda con Enter
+    document.getElementById('input-busqueda').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('form-busqueda').submit();
+    });
+</script>
+{% endblock %}

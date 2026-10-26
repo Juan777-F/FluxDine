@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Facturación · FluxDine{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* Estilos rápidos específicos para la bandeja de facturas, adicionales a admin.css */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-pagada {
+        background: rgba(22, 163, 74, 0.10);
+        color: #15803d;
+    }
+
+    .status-pendiente {
+        background: rgba(217, 119, 6, 0.10);
+        color: #b45309;
+    }
+
+    .status-anulada {
+        background: rgba(220, 38, 38, 0.10);
+        color: #b91c1c;
+    }
+
+    .factura-actions form {
+        display: inline;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    {% include 'admin/sidebar.html' ignore missing %}
+
+    <div class="main-content">
+        <!-- Topbar simulado (igual a los demás) -->
+        <header class="topbar">
+            <div class="topbar-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Buscar producto, facturas...">
+            </div>
+            <div class="topbar-actions">
+                <a href="{{ url_for('admin.nueva_factura') }}" class="btn-registrar-venta">
+                    <i class="bi bi-plus-lg"></i> Nueva factura
+                </a>
+            </div>
+        </header>
+
+        <div class="page-area">
+            <div class="page-header">
+                <div>
+                    <div class="page-eyebrow">Módulo de Facturación</div>
+                    <h1 class="page-title">Historial de Facturas</h1>
+                    <p class="page-subtitle">Gestiona todas las facturas y cobros registrados.</p>
+                </div>
+                <div class="page-header-actions">
+                    <a href="{{ url_for('admin.nueva_factura') }}" class="btn-registrar-venta">
+                        <i class="bi bi-receipt"></i> + Nueva Factura
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Total Mes (Pagado)</div>
+                        <div class="metric-value">${{ "{:,.0f}".format(total_mes).replace(',', '.') }}</div>
+                    </div>
+                    <div class="metric-icon orange"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Facturas Emitidas</div>
+                        <div class="metric-value">{{ facturas|length }}</div>
+                    </div>
+                    <div class="metric-icon brown"><i class="bi bi-receipt"></i></div>
+                </div>
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-label">Facturas Pendientes</div>
+                        <div class="metric-value">{{ facturas_pendientes }}</div>
+                    </div>
+                    <div class="metric-icon gold"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+            </div>
+
+            <div class="panel-card mt-4">
+                <div class="panel-card-header">
+                    <h3 class="panel-card-title">Listado de Facturas</h3>
+                </div>
+
+                <!-- Filtros -->
+                <div class="inv-filtros" style="padding: 0 0 20px;">
+                    <form method="GET" class="filtros-form">
+                        <div class="filtro-group">
+                            <label class="filtro-label">Buscar N° Factura</label>
+                            <input type="text" name="q" value="{{ busqueda }}" class="filtro-select"
+                                placeholder="FAC-00...">
+                        </div>
+                        <div class="filtro-group">
+                            <label class="filtro-label">Estado</label>
+                            <select name="estado" class="filtro-select" onchange="this.form.submit()">
+                                <option value="todas" {% if estado_sel=='todas' %}selected{% endif %}>Todas</option>
+                                <option value="pagada" {% if estado_sel=='pagada' %}selected{% endif %}>Pagadas</option>
+                                <option value="pendiente" {% if estado_sel=='pendiente' %}selected{% endif %}>Pendientes
+                                </option>
+                                <option value="anulada" {% if estado_sel=='anulada' %}selected{% endif %}>Anuladas
+                                </option>
+                            </select>
+                        </div>
+                        <a href="{{ url_for('admin.facturas') }}" class="btn-limpiar">Limpiar filtros</a>
+                        <button type="submit" style="display:none;"></button>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fac in facturas %}
+                            <tr>
+                                <td style="font-weight:700;">{{ fac.numero }}</td>
+                                <td>{{ fac.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td style="text-transform:capitalize;">{{ fac.metodo_pago }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ fac.estado }}">{{ fac.estado|capitalize
+                                        }}</span>
+                                </td>
+                                <td style="font-weight:bold;">${{ "{:,.0f}".format(fac.total).replace(',', '.') }}</td>
+                                <td class="factura-actions">
+                                    <a href="{{ url_for('admin.ver_factura', id=fac.id) }}"
+                                        class="btn btn-sm btn-outline-secondary" title="Ver Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.imprimir_factura', id=fac.id) }}" target="_blank"
+                                        class="btn btn-sm btn-outline-primary" title="Imprimir">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin.eliminar_factura', id=fac.id) }}"
+                                        onsubmit="return confirm('¿Seguro de eliminar y devolver productos al inventario?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"><i
+                                                class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">No se encontraron facturas.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

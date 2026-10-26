@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Panel Empleado · La Pikda{% endblock %}
+{% block title %}Panel Empleado · FluxDine{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
@@ -14,7 +14,7 @@
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon"><i class="bi bi-fire"></i></div>
             <div class="sidebar-brand-text">
-                <div class="brand-name">LA PIKDA</div>
+                <div class="brand-name">FluxDine</div>
                 <div class="brand-role">Panel Empleado</div>
             </div>
         </div>
@@ -35,8 +35,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="{{ url_for('auth.logout') }}" class="nav-item" id="logout-btn"
-               style="color:var(--pikda-danger);">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" id="logout-btn" style="color:var(--pikda-danger);">
                 <i class="bi bi-box-arrow-left"></i> Cerrar sesión
             </a>
         </div>
@@ -58,8 +57,10 @@
                     </div>
                     <div class="avatar-info">
                         <div class="user-name">
-                            {{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Empleado' }}
-                            {{ current_user.nombre_completo.split()[1][0] if current_user.nombre_completo and current_user.nombre_completo.split()|length > 1 else '' }}.
+                            {{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Empleado'
+                            }}
+                            {{ current_user.nombre_completo.split()[1][0] if current_user.nombre_completo and
+                            current_user.nombre_completo.split()|length > 1 else '' }}.
                         </div>
                         <div class="user-role">{{ current_user.rol.nombre if current_user.rol else 'Empleado' }}</div>
                     </div>
@@ -75,7 +76,8 @@
                 <div>
                     <div class="page-eyebrow">Panel Empleado</div>
                     <h1 class="page-title">
-                        Hola {{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Empleado' }},
+                        Hola {{ current_user.nombre_completo.split()[0] if current_user.nombre_completo else 'Empleado'
+                        }},
                         tu turno de hoy
                     </h1>
                     <p class="page-subtitle" id="fecha-hoy"></p>
@@ -197,7 +199,7 @@
 <script>
     document.getElementById('fecha-hoy').textContent =
         new Date().toLocaleDateString('es-CO', {
-            weekday:'long', day:'numeric', month:'long', year:'numeric'
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         });
 </script>
 {% endblock %}

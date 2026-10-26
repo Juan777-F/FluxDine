@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Editar' if producto else 'Nuevo' }} Producto · Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="bi bi-fire"></i></div>
+            <div class="sidebar-brand-text">
+                <div class="brand-name">FluxDine</div>
+                <div class="brand-role">Admin Panel</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+                <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.inventario') }}" class="nav-item active">
+                <i class="bi bi-box-seam"></i> Inventario
+            </a>
+            <a href="{{ url_for('admin.productos') }}" class="nav-item">
+                <i class="bi bi-basket"></i> Productos
+            </a>
+            <a href="{{ url_for('admin.ventas') }}" class="nav-item">
+                <i class="bi bi-receipt"></i> Ventas
+            </a>
+            <a href="{{ url_for('admin.empleados') }}" class="nav-item">
+                <i class="bi bi-people"></i> Empleados
+            </a>
+            <a href="{{ url_for('admin.facturas') }}" class="nav-item">
+                <i class="bi bi-printer"></i> Facturación
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="color:var(--pikda-danger);">
+                <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-search"></div>
+            <div class="topbar-actions">
+                <div class="user-avatar">
+                    <div class="avatar-circle">
+                        {{ current_user.nombre_completo[:2].upper() }}
+                    </div>
+                    <div class="avatar-info">
+                        <div class="user-name">{{ current_user.nombre_completo.split()[0] }}</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-area">
+            <div class="page-header">
+                <div>
+                    <div class="page-eyebrow">Inventario</div>
+                    <h1 class="page-title">
+                        {{ 'Editar producto' if producto else 'Nuevo producto' }}
+                    </h1>
+                </div>
+                <a href="{{ url_for('admin.inventario') }}" class="btn-export">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="panel-card" style="max-width:700px;">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label class="form-label">Nombre del producto *</label>
+                            <input type="text" name="nombre" class="form-input"
+                                value="{{ producto.nombre if producto else '' }}" placeholder="Ej: Costilla de cerdo"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Categoría *</label>
+                            <select name="categoria_id" class="form-input" required>
+                                <option value="">Seleccionar...</option>
+                                {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {{ 'selected' if producto and producto.categoria_id==cat.id
+                                    }}>
+                                    {{ cat.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-input">
+                                <option value="disponible" {{ 'selected' if not producto or
+                                    producto.estado=='disponible' }}>Disponible</option>
+                                <option value="agotado" {{ 'selected' if producto and producto.estado=='agotado' }}>
+                                    Agotado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="descripcion" class="form-input" rows="3"
+                                placeholder="Descripción opcional del producto">{{ producto.descripcion if producto else '' }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Precio de venta (COP) *</label>
+                            <input type="number" name="precio_venta" class="form-input"
+                                value="{{ producto.precio_venta if producto else '' }}" placeholder="0" min="0"
+                                step="100" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Stock actual</label>
+                            <input type="number" name="stock_actual" class="form-input"
+                                value="{{ producto.stock_actual if producto else 0 }}" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Stock mínimo</label>
+                            <input type="number" name="stock_minimo" class="form-input"
+                                value="{{ producto.stock_minimo if producto else 5 }}" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{{ url_for('admin.inventario') }}" class="btn-export">Cancelar</a>
+                        <button type="submit" class="btn-registrar-venta">
+                            <i class="bi bi-check-lg"></i>
+                            {{ 'Guardar cambios' if producto else 'Crear producto' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
